@@ -1,0 +1,141 @@
+/*DBMSL-3
+SQL Queries - all types of Join, Sub-Query and View:
+Write at least 10 SQL queries for suitable database application using SQL DML
+statement
+*/
+-- Create Instructor Table
+CREATE TABLE instructor (
+    instr_id NUMBER(20) PRIMARY KEY,
+    instr_name VARCHAR2(30),
+    instr_salary NUMBER(20)
+);
+
+-- Create Department Table
+CREATE TABLE department (
+    dept_id NUMBER(20) PRIMARY KEY,
+    dept_name VARCHAR2(30),
+    instr_id NUMBER(20),
+    FOREIGN KEY (instr_id) REFERENCES instructor(instr_id)
+);
+
+-- Insert records into Instructor Table
+INSERT INTO instructor (instr_id, instr_name, instr_salary) VALUES (1, 'Sahil', 52000);
+INSERT INTO instructor (instr_id, instr_name, instr_salary) VALUES (2, 'Ishant', 53000);
+INSERT INTO instructor (instr_id, instr_name, instr_salary) VALUES (3, 'Yashraj', 55000);
+INSERT INTO instructor (instr_id, instr_name, instr_salary) VALUES (4, 'Varad', 57000);
+INSERT INTO instructor (instr_id, instr_name, instr_salary) VALUES (5, 'Atharva', 56000);
+INSERT INTO instructor (instr_id, instr_name, instr_salary) VALUES (6, 'Shivam', 61000);
+INSERT INTO instructor (instr_id, instr_name, instr_salary) VALUES (7, 'Prashant', 60000);
+INSERT INTO instructor (instr_id, instr_name, instr_salary) VALUES (8, 'Sudhir', 59000);
+INSERT INTO instructor (instr_id, instr_name, instr_salary) VALUES (9, 'Advait', 62000);
+INSERT INTO instructor (instr_id, instr_name, instr_salary) VALUES (10, 'Omkar', 63000);
+
+-- Insert records into Department Table
+INSERT INTO department (dept_id, dept_name, instr_id) VALUES (111, 'Computer', 1);
+INSERT INTO department (dept_id, dept_name, instr_id) VALUES (222, 'IT', 2);
+INSERT INTO department (dept_id, dept_name, instr_id) VALUES (333, 'Electrical', 3);
+INSERT INTO department (dept_id, dept_name, instr_id) VALUES (444, 'Civil', 4);
+INSERT INTO department (dept_id, dept_name, instr_id) VALUES (555, 'Mechanical', 5);
+INSERT INTO department (dept_id, dept_name, instr_id) VALUES (666, 'AIML', 6);
+INSERT INTO department (dept_id, dept_name, instr_id) VALUES (777, 'AIDS', 7);
+INSERT INTO department (dept_id, dept_name, instr_id) VALUES (888, 'Electronics', 8);
+INSERT INTO department (dept_id, dept_name, instr_id) VALUES (999, 'ENTC', 9);
+INSERT INTO department (dept_id, dept_name, instr_id) VALUES (1000, 'Data Science', 10);
+
+-- Inner Join
+SELECT * 
+FROM instructor 
+INNER JOIN department 
+ON instructor.instr_id = department.instr_id;
+
+-- Left Join
+SELECT * 
+FROM instructor 
+LEFT JOIN department 
+ON instructor.instr_id = department.instr_id;
+
+-- Right Join
+SELECT * 
+FROM department 
+RIGHT JOIN instructor 
+ON department.instr_id = instructor.instr_id;
+
+-- Full Outer Join
+SELECT * 
+FROM department 
+FULL OUTER JOIN instructor 
+ON department.instr_id = instructor.instr_id;
+
+-- Subquery
+SELECT instr_name 
+FROM instructor 
+WHERE instr_id IN (
+    SELECT instr_id 
+    FROM department 
+    WHERE dept_id IN (111, 555)
+);
+
+-- Create View
+CREATE VIEW inst_view AS 
+SELECT i.instr_id, i.instr_name, i.instr_salary, d.dept_name
+FROM instructor i
+JOIN department d ON i.instr_id = d.instr_id
+WHERE i.instr_salary > 50000;
+
+-- Retrieve from View
+SELECT * FROM inst_view;
+
+-- Update Department
+UPDATE department
+SET instr_id = 10, dept_name = 'Software Engineering'
+WHERE dept_id = 1000;
+
+-- Sum instructor salary grouped by department
+SELECT d.dept_name, SUM(i.instr_salary) AS total_salary
+FROM instructor i
+INNER JOIN department d ON i.instr_id = d.instr_id
+GROUP BY d.dept_name;
+
+-- Instructors without a department
+SELECT i.instr_name 
+FROM instructor i
+LEFT JOIN department d ON i.instr_id = d.instr_id
+WHERE d.instr_id IS NULL;
+
+-- Sum Salaries
+SELECT SUM(instr_salary) AS total_salary 
+FROM instructor;
+
+-- Count Instructors
+SELECT COUNT(instr_id) AS instructor_count 
+FROM instructor;
+
+-- Max & Min Salaries
+SELECT MAX(instr_salary) AS max_salary, MIN(instr_salary) AS min_salary 
+FROM instructor;
+
+-- Update Salary
+UPDATE instructor 
+SET instr_salary = 55000 
+WHERE instr_name = 'Shivam';
+
+-- Sum instructor salaries by department with condition
+SELECT dept_name, SUM(instr_salary) AS total_salary
+FROM instructor i
+JOIN department d ON i.instr_id = d.instr_id
+GROUP BY dept_name
+HAVING SUM(instr_salary) > 40000;
+
+-- Re-create View
+DROP VIEW inst_view;
+
+CREATE VIEW inst_view AS 
+SELECT instr_id, instr_name, instr_salary 
+FROM instructor 
+WHERE instr_salary > 40000;
+
+-- Retrieve from Updated View
+SELECT * FROM inst_view;
+
+-- Drop View
+DROP VIEW inst_view;
