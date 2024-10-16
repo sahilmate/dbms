@@ -1,0 +1,256 @@
+/*--DBMSl-7
+Database Trigger (All Types: Row level and Statement level triggers, Before 
+and AfterTriggers).
+Write a database trigger on Library table. The System should keep track of the records 
+that are being updated or deleted. The old value of updated or deleted records should be 
+added in Library_Audit table.
+*/
+
+CREATE OR REPLACE FUNCTION calfine(days NUMBER)
+RETURN NUMBER IS
+    amount NUMBER := 0;
+BEGIN
+    IF (days > 15 AND days < 30) THEN
+        amount := days * 5;
+    ELSIF (days > 30) THEN
+        amount := days * 50;
+    ELSE
+        amount := 0;
+    END IF;
+    RETURN amount;
+END;
+/
+
+CREATE OR REPLACE TRIGGER modify_library
+AFTER UPDATE
+ON library
+FOR EACH ROW
+ENABLE
+BEGIN
+    INSERT INTO library_audits (roll_no, name, date_of_issue, name_of_book, status)
+    VALUES (:old.roll_no, :old.name, :old.date_of_issue, :old.name_of_book, :old.status);
+
+    DBMS_OUTPUT.PUT_LINE('One row inserted in Audit table');
+END;
+/
+
+
+-- library2.sql
+SET SERVEROUTPUT ON;
+
+DECLARE
+    roll_num NUMBER(2);
+    book_name VARCHAR2(20);
+    nm VARCHAR2(25);
+    s VARCHAR2(10);
+    date_fine DATE;
+    d_issue DATE;
+    days NUMBER(2);
+    amt NUMBER(5);
+BEGIN
+    roll_num := &roll_num;
+    book_name := '&book_name';
+
+    SELECT roll_no, name, name_of_book, status, date_of_issue INTO 
+        roll_num, nm, book_name, s, d_issue 
+    FROM library 
+    WHERE roll_no = roll_num;
+
+    days := SYSDATE - d_issue;
+
+    DBMS_OUTPUT.PUT_LINE('Roll no = ' || roll_num);
+    DBMS_OUTPUT.PUT_LINE('Name = ' || nm);
+    DBMS_OUTPUT.PUT_LINE('Book name = ' || book_name);
+    DBMS_OUTPUT.PUT_LINE('Status ' || s);
+    DBMS_OUTPUT.PUT_LINE('Days are ' || days);
+
+    amt := calfine(days);
+    DBMS_OUTPUT.PUT_LINE('Fine amount is ' || amt);
+
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        DBMS_OUTPUT.PUT_LINE('Record not found');
+
+END;
+/
+
+C:\Users\Shivam>SQLPLUS SYS AS SYSDBA;
+
+SQL*Plus: Release 11.2.0.2.0 Production on Sun Oct ## ##:##:## 2024
+
+Copyright (c) 1982, 2014, Oracle.  All rights reserved.
+
+Enter password:
+
+Connected to:
+Oracle Database 11g Express Edition Release 11.2.0.2.0 - 64bit Production
+
+SQL> -- Creating table library
+SQL> CREATE TABLE library (
+  2      roll_no NUMBER(2),
+  3      name VARCHAR2(25),
+  4      date_of_issue DATE,
+  5      name_of_book VARCHAR2(20),
+  6      status VARCHAR2(10)
+  7  );
+
+Table created.
+
+SQL> --Creating table library_audits
+SQL> CREATE TABLE library_audits (
+  2      roll_no NUMBER(2),
+  3      name VARCHAR2(25),
+  4      date_of_issue DATE,
+  5      name_of_book VARCHAR2(20),
+  6      status VARCHAR2(10)
+  7  );
+
+Table created.
+
+SQL> -- Inserting data into the library table
+SQL> INSERT INTO library VALUES (34, 'Shivam', '15-September-2024', 'SPOS', 'I');
+
+1 row created.
+
+SQL> INSERT INTO library VALUES (41, 'Sahil', '10-August-2024', 'HCI', 'I');
+
+1 row created.
+
+SQL> INSERT INTO library VALUES (36, 'Varad', '25-August-2024', 'SPOS', 'I');
+
+1 row created.
+
+SQL> INSERT INTO library VALUES (25, 'Atharva', '17-September-2024', 'TOC', 'I');
+
+1 row created.
+
+SQL> INSERT INTO library VALUES (22, 'Omkar', '10-September-2024', 'DBMS', 'I');
+
+1 row created.
+
+SQL> INSERT INTO library VALUES (42, 'Vishwajeet', '01-October-2024', 'IOT', 'I');
+
+1 row created.
+
+SQL> INSERT INTO library VALUES (50, 'Yashraj', '20-August-2024', 'CNS', 'I');
+
+1 row created.
+
+SQL> INSERT INTO library VALUES (43, 'Ishant', '25-August-2024', 'SPM', 'I');
+
+1 row created.
+
+SQL> INSERT INTO library VALUES (55, 'Soham', '12-September-2024', 'CNS', 'I');
+
+1 row created.
+
+SQL> INSERT INTO library VALUES (19, 'Riddesh', '05-October-2024', 'DBMS', 'I');
+
+1 row created.
+
+SQL> SELECT * FROM library;
+
+   ROLL_NO NAME                      DATE_OF_I NAME_OF_BOOK         STATUS
+---------- ------------------------- --------- -------------------- ----------
+        34 Shivam                    15-SEP-24 SPOS                 I
+        41 Sahil                     10-AUG-24 HCI                  I
+        36 Varad                     25-AUG-24 SPOS                 I
+        25 Atharva                   17-SEP-24 TOC                  I
+        22 Omkar                     10-SEP-24 DBMS                 I
+        42 Vishwajeet                01-OCT-24 IOT                  I
+        50 Yashraj                   20-AUG-24 CNS                  I
+        43 Ishant                    25-AUG-24 SPM                  I
+        55 Soham                     12-SEP-24 CNS                  I
+        19 Riddesh                   05-OCT-24 DBMS                 I
+
+10 rows selected.
+
+SQL> SELECT * FROM library_audits;
+
+no rows selected.
+
+SQL> DESC library_audits;
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ ROLL_NO                                            NUMBER(2)
+ NAME                                               VARCHAR2(25)
+ DATE_OF_ISSUE                                      DATE
+ NAME_OF_BOOK                                       VARCHAR2(20)
+ STATUS                                             VARCHAR2(10)
+
+SQL> CREATE OR REPLACE FUNCTION calfine(days NUMBER)
+  2  RETURN NUMBER IS
+  3      amount NUMBER := 0;
+  4  BEGIN
+  5      IF (days > 15 AND days < 30) THEN
+  6          amount := days * 5;
+  7      ELSIF (days > 30) THEN
+  8          amount := days * 50;
+  9      ELSE
+ 10          amount := 0;
+ 11      END IF;
+ 12      RETURN amount;
+ 13  END;
+ 14  /
+
+Function created.
+
+SQL> CREATE OR REPLACE TRIGGER modify_library
+  2  AFTER UPDATE
+  3  ON library
+  4  FOR EACH ROW
+  5  ENABLE
+  6  BEGIN
+  7      INSERT INTO library_audits (roll_no, name, date_of_issue, name_of_book, status)
+  8      VALUES (:old.roll_no, :old.name, :old.date_of_issue, :old.name_of_book, :old.status);
+  9
+ 10      DBMS_OUTPUT.PUT_LINE('One row inserted in Audit table');
+ 11  END;
+ 12  /
+
+Trigger created.
+
+SQL> UPDATE library
+  2  SET name = 'DBMS'
+  3  WHERE roll_no = 34;
+One row inserted in Audit table
+
+1 row updated.
+
+SQL> UPDATE library
+  2  SET name = 'SPM'
+  3  WHERE roll_no = 36;
+One row inserted in Audit table
+
+1 row updated.
+
+SQL> UPDATE library
+  2  SET name = 'SPOS'
+  3  WHERE roll_no = 22;
+One row inserted in Audit table
+
+1 row updated.
+
+SQL> UPDATE library
+  2  SET name = 'DBMS'
+  3  WHERE roll_no = 50;
+One row inserted in Audit table
+
+1 row updated.
+
+SQL> UPDATE library
+  2  SET name = 'IOT'
+  3  WHERE roll_no = 55;
+One row inserted in Audit table
+
+1 row updated.
+
+SQL> SELECT * FROM library_audits;
+
+   ROLL_NO NAME                      DATE_OF_I NAME_OF_BOOK         STATUS
+---------- ------------------------- --------- -------------------- ----------
+        34 Shivam                    15-SEP-24 SPOS                 I
+        36 Varad                     25-AUG-24 SPOS                 I
+        22 Omkar                     10-SEP-24 DBMS                 I
+        50 Yashraj                   20-AUG-24 CNS                  I
+        55 Soham                     12-SEP-24 CNS                  I
