@@ -1,0 +1,219 @@
+/*--DBMSL-6
+Cursors: (All types: Implicit, Explicit, Cursor FOR Loop, Parameterized Cursor)
+Write a PL/SQL block of code using parameterized Cursor that will merge the data
+available in the newly created table N_RollCall with the data available in the table
+O_RollCall. If the data in the first table already exist in the second table then that data
+should be skipped.
+*/
+C:\Users\Shivam>SQLPLUS SYS AS SYSDBA;
+
+SQL*Plus: Release 11.2.0.2.0 Production on Sun Oct 13 21:58:37 2024
+
+Copyright (c) 1982, 2014, Oracle.  All rights reserved.
+
+Enter password:
+
+Connected to:
+Oracle Database 11g Express Edition Release 11.2.0.2.0 - 64bit Production
+
+SQL> -- Create O_RollCall
+SQL> CREATE TABLE O_RollCall (
+  2      roll_no NUMBER(2),
+  3      name VARCHAR2(25),
+  4      age NUMBER(2),
+  5      marks NUMBER(3)
+  6  );
+
+Table created.
+
+SQL>-- Create N_RollCall
+SQL> CREATE TABLE N_RollCall (
+  2      roll_no NUMBER(2),
+  3      name VARCHAR2(25),
+  4      age NUMBER(2),
+  5      marks NUMBER(3)
+  6  );
+
+Table created.
+
+SQL> -- Insert into O_RollCall
+SQL> INSERT INTO O_RollCall VALUES (34, 'Shivam', 21, 195);
+
+1 row created.
+
+SQL> INSERT INTO O_RollCall VALUES (41, 'Sahil', 21, 140);
+
+1 row created.
+
+SQL> INSERT INTO O_RollCall VALUES (36, 'Varad', 21, 187);
+
+1 row created.
+
+SQL> INSERT INTO O_RollCall VALUES (25, 'Atharva', 21, 175);
+
+1 row created.
+
+SQL> INSERT INTO O_RollCall VALUES (22, 'Omkar', 21, 180);
+
+1 row created.
+
+SQL> INSERT INTO O_RollCall VALUES (70, 'Soham', 21, 190);
+
+1 row created.
+
+SQL> INSERT INTO O_RollCall VALUES (19, 'Riddesh', 21, 170);
+
+1 row created.
+
+SQL> INSERT INTO O_RollCall VALUES (43, 'Ishant', 21, 165);
+
+1 row created.
+
+SQL> INSERT INTO O_RollCall VALUES (42, 'Vishwajeet', 21, 195);
+
+1 row created.
+
+SQL> INSERT INTO O_RollCall VALUES (50, 'Yashraj', 21, 180);
+
+1 row created.
+
+SQL>
+SQL> -- Insert into N_RollCall
+SQL> INSERT INTO N_RollCall VALUES (34, 'Shivam', 21, 195);
+
+1 row created.
+
+SQL> INSERT INTO N_RollCall VALUES (21, 'Vivek', 21, 190);
+
+1 row created.
+
+SQL> INSERT INTO N_RollCall VALUES (50, 'Yashraj', 21, 180);
+
+1 row created.
+
+SQL> INSERT INTO N_RollCall VALUES (62, 'Aryan', 21, 179);
+
+1 row created.
+
+SQL> INSERT INTO N_RollCall VALUES (14, 'Prashant', 21, 190);
+
+1 row created.
+
+SQL> INSERT INTO N_RollCall VALUES (15, 'Faiz', 21, 160);
+
+1 row created.
+
+SQL> INSERT INTO N_RollCall VALUES (16, 'Karunya', 21, 180);
+
+1 row created.
+
+SQL> INSERT INTO N_RollCall VALUES (17, 'Suyog', 21, 195);
+
+1 row created.
+
+SQL> INSERT INTO N_RollCall VALUES (18, 'Vedant', 21, 165);
+
+1 row created.
+
+SQL> INSERT INTO N_RollCall VALUES (20, 'Sojas', 21, 185);
+
+1 row created.
+
+SQL>
+SQL> SELECT * FROM O_RollCall;
+
+   ROLL_NO NAME                             AGE      MARKS
+---------- ------------------------- ---------- ----------
+        34 Shivam                            21        195
+        41 Sahil                             21        140
+        36 Varad                             21        187
+        25 Atharva                           21        175
+        22 Omkar                             21        180
+        70 Soham                             21        190
+        19 Riddesh                           21        170
+        43 Ishant                            21        165
+        42 Vishwajeet                        21        195
+        50 Yashraj                           21        180
+
+10 rows selected.
+
+SQL> SELECT * FROM N_RollCall;
+
+   ROLL_NO NAME                             AGE      MARKS
+---------- ------------------------- ---------- ----------
+        34 Shivam                            21        195
+        21 Vivek                             21        190
+        50 Yashraj                           21        180
+        62 Aryan                             21        179
+        14 Prashant                          21        190
+        15 Faiz                              21        160
+        16 Karunya                           21        180
+        17 Suyog                             21        195
+        18 Vedant                            21        165
+        20 Sojas                             21        185
+
+10 rows selected.
+
+SQL>
+SQL> SET SERVEROUTPUT ON;
+SQL>
+SQL> DECLARE
+  2      roll O_RollCall.roll_no%TYPE;
+  3      a O_RollCall%ROWTYPE;
+  4
+  5  BEGIN
+  6      FOR a IN (SELECT roll_no, name, age, marks FROM O_RollCall WHERE roll_no NOT IN (SELECT roll_no FROM N_RollCall))
+  7      LOOP
+  8          INSERT INTO N_RollCall VALUES (a.roll_no, a.name, a.age, a.marks);
+  9      END LOOP;
+ 10      DBMS_OUTPUT.PUT_LINE('Values copied');
+ 11  END;
+ 12  /
+Values copied
+
+PL/SQL procedure successfully completed.
+
+SQL> SELECT * FROM O_RollCall;
+
+   ROLL_NO NAME                             AGE      MARKS
+---------- ------------------------- ---------- ----------
+        34 Shivam                            21        195
+        41 Sahil                             21        140
+        36 Varad                             21        187
+        25 Atharva                           21        175
+        22 Omkar                             21        180
+        70 Soham                             21        190
+        19 Riddesh                           21        170
+        43 Ishant                            21        165
+        42 Vishwajeet                        21        195
+        50 Yashraj                           21        180
+
+10 rows selected.
+
+SQL> SELECT * FROM N_RollCall;
+
+   ROLL_NO NAME                             AGE      MARKS
+---------- ------------------------- ---------- ----------
+        34 Shivam                            21        195
+        21 Vivek                             21        190
+        50 Yashraj                           21        180
+        62 Aryan                             21        179
+        14 Prashant                          21        190
+        15 Faiz                              21        160
+        16 Karunya                           21        180
+        17 Suyog                             21        195
+        18 Vedant                            21        165
+        20 Sojas                             21        185
+        36 Varad                             21        187
+
+   ROLL_NO NAME                             AGE      MARKS
+---------- ------------------------- ---------- ----------
+        22 Omkar                             21        180
+        41 Sahil                             21        140
+        25 Atharva                           21        175
+        19 Riddesh                           21        170
+        43 Ishant                            21        165
+        70 Soham                             21        190
+        42 Vishwajeet                        21        195
+
+18 rows selected.
