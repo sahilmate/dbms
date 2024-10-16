@@ -1,0 +1,44 @@
+--library.sql
+SET SERVEROUTPUT ON;
+
+DECLARE
+    roll_num NUMBER(5);       
+    book_name VARCHAR2(20);     
+    nm VARCHAR2(25);            
+    s VARCHAR2(10);             
+    d_issue DATE;               
+    days NUMBER(5);          
+    amt NUMBER(10);
+
+BEGIN
+    roll_num := &roll_num;
+    book_name := '&book_name';
+
+    SELECT roll_no, name, name_of_book, status, date_of_issue 
+    INTO roll_num, nm, book_name, s, d_issue 
+    FROM borrower 
+    WHERE roll_no = roll_num
+    AND ROWNUM = 1;
+
+    days := SYSDATE - d_issue;
+
+    DBMS_OUTPUT.PUT_LINE('Roll no = ' || roll_num);
+    DBMS_OUTPUT.PUT_LINE('Name = ' || nm);
+    DBMS_OUTPUT.PUT_LINE('Book name = ' || book_name);
+    DBMS_OUTPUT.PUT_LINE('Status = ' || s);
+    DBMS_OUTPUT.PUT_LINE('Days are = ' || days);
+
+    amt := calfine(days);
+    DBMS_OUTPUT.PUT_LINE('Fine amount is = ' || amt);
+    
+    IF amt > 0 THEN
+    UPDATE borrower 
+    SET status = 'R' 
+    WHERE roll_no = roll_num AND name_of_book = book_name;
+
+    INSERT INTO fine (roll_no, date_fine, amount)
+    VALUES (roll_num, SYSDATE, amt);
+END IF;
+
+END;
+/
