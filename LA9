@@ -1,0 +1,79 @@
+// Insert multiple employee documents
+db.employees.insertMany([{ empId: 1, name: 'Shivam', dept: 'Sales', exp: 1 }, { empId: 2, name: 'Sahil', dept: 'QualityControl', exp: 3 }, { empId: 3, name: 'Varad', dept: 'Sales', exp: 4 }, { empId: 4, name: 'Atharva', dept: 'Finance', exp: 2 }, { empId: 5, name: 'Omkar', dept: 'Production', exp: 5 }, { empId: 6, name: 'Aditi', dept: 'CustomerCare', exp: 10 }, { empId: 7, name: 'Riddesh', dept: 'HumanResources', exp: 5 }, { empId: 8, name: 'Ishant', dept: 'Docs', exp: 1 }, { empId: 9, name: 'Vishwajeet', dept: 'Accounting', exp: 8 }, { empId: 10, name: 'Yashraj', dept: 'Sales', exp: 12 }, { empId: 11, name: 'Aryan', dept: 'Docs', exp: 10, salary: 100 }]);
+
+// Retrieve all employees
+print("All employees:");
+printjson(db.employees.find().toArray());
+
+// Find employees in 'Sales' department
+print("Employees in 'Sales' department:");
+printjson(db.employees.find({ dept: 'Sales' }).toArray());
+
+// Find employees with salary 100
+print("Employees with salary 100:");
+printjson(db.employees.find({ salary: 100 }).toArray());
+
+// Pretty print all employees
+print("Pretty print all employees:");
+db.employees.find().pretty();
+
+// Pretty print employees with salary 100
+print("Pretty print employees with salary 100:");
+db.employees.find({ salary: 100 }).pretty();
+
+// Update region for employee with empId 3
+db.employees.updateOne({ empId: 3 }, { $set: { region: "Asia" } });
+
+// Update region for employee with empId 11
+db.employees.updateOne({ empId: 11 }, { $set: { region: "Australia" } });
+
+// Update region for all employees in 'Sales' department
+db.employees.updateMany({ dept: 'Sales' }, { $set: { region: "Europe" } });
+
+// Delete employee with empId 4
+db.employees.deleteOne({ empId: 4 });
+
+// Update region and salary for employee with empId 5
+db.employees.updateOne({ empId: 5 }, { $set: { region: "South America", salary: 200 } });
+
+// Find employees with salary greater than 99
+print("Employees with salary greater than 99:");
+printjson(db.employees.find({ salary: { $gt: 99 } }).toArray());
+
+// Find employees with salary less than 500
+print("Employees with salary less than 500:");
+printjson(db.employees.find({ salary: { $lt: 500 } }).toArray());
+
+// Find employees with salary greater than 99 and sort by salary in ascending order
+print("Employees with salary greater than 99 sorted by salary:");
+printjson(db.employees.find({ salary: { $gt: 99 } }).sort({ salary: 1 }).toArray());
+
+// Aggregate query to calculate average salary
+print("Average salary:");
+printjson(db.employees.aggregate([{ $group: { _id: null, avgSalary: { $avg: "$salary" } } }]).toArray());
+
+// Update salary to 900 for employees with salary greater than 199
+db.employees.updateMany({ salary: { $gt: 199 } }, { $set: { salary: 900 } });
+
+// Find employees with salary not greater than 800
+print("Employees with salary not greater than 800:");
+printjson(db.employees.find({ salary: { $not: { $gt: 800 } } }).toArray());
+
+// Pretty print employees with salary 500 or 900
+print("Pretty print employees with salary 500 or 900:");
+db.employees.find({ $or: [{ salary: 500 }, { salary: 900 }] }).pretty();
+
+// Count number of employees
+print("Number of employees:");
+printjson(db.employees.countDocuments());
+
+// Pretty print employees sorted by department and salary in descending order
+print("Employees sorted by department and salary:");
+db.employees.find().sort({ dept: 1, salary: -1 }).pretty();
+
+// Update salary for employee named 'Shivam'
+db.employees.updateOne({ name: "Shivam" }, { $set: { salary: 500 } });
+
+// Find all employees sorted by department and salary in descending order
+print("All employees sorted by department and salary:");
+printjson(db.employees.find().sort({ dept: 1, salary: -1 }).toArray());
