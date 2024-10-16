@@ -1,0 +1,30 @@
+--proc_grades.sql
+
+SET SERVEROUTPUT ON;
+
+DECLARE
+    roll_num   NUMBER(2);           
+    stud_name  VARCHAR2(20);         
+    total      NUMBER(5);            
+    stud_class VARCHAR2(30);         
+BEGIN
+    roll_num := &roll_num;
+    
+    SELECT roll_no, s_name, total_marks 
+    INTO roll_num, stud_name, total 
+    FROM stud_marks
+    WHERE roll_no = roll_num;
+    
+    DBMS_OUTPUT.PUT_LINE('Roll number = ' || roll_num);
+    DBMS_OUTPUT.PUT_LINE('Name of student = ' || stud_name);
+    DBMS_OUTPUT.PUT_LINE('Total marks = ' || total);
+    
+    stud_class := proc_grades(total);
+    DBMS_OUTPUT.PUT_LINE('Grade is ' || stud_class);
+    
+    INSERT INTO stud_result (roll_no, s_name, s_class) 
+    VALUES (roll_num, stud_name, stud_class);
+    
+    DBMS_OUTPUT.PUT_LINE('One row inserted into stud_result.');
+END;
+/
