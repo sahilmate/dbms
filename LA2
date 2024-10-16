@@ -1,0 +1,206 @@
+/*DBMSL-2
+SQL Queries:
+a. Design and Develop SQL DDL statements which demonstrate the use of SQL
+objects such as Table, View, Index, Sequence, Synonym, different constraints etc.
+
+b. Write at least 10 SQL queries on the suitable database application using SQL
+DML statements.
+
+*/
+-- Part A: DDL Statements
+
+-- Create Employee table
+CREATE TABLE Employee (
+    emp_id VARCHAR2(10) PRIMARY KEY,
+    emp_name VARCHAR2(20),
+    emp_desc VARCHAR2(30),
+    dept_name VARCHAR2(20),
+    emp_city VARCHAR2(15)
+);
+
+-- Insert records into Employee table
+INSERT INTO Employee VALUES ('10001', 'Vivek', 'Team Lead', 'Marketing', 'Mumbai');
+INSERT INTO Employee VALUES ('10002', 'Shivam', 'Supervisor', 'Operations', 'Bangalore');
+INSERT INTO Employee VALUES ('10003', 'Aryan', 'Tech Manager', 'IT Support', 'Chennai');
+INSERT INTO Employee VALUES ('10004', 'Omkar', 'Project Manager', 'Development', 'Pune');
+INSERT INTO Employee VALUES ('10005', 'Siddarth', 'Customer Rep', 'CustomerSuccess', 'Pune');
+INSERT INTO Employee VALUES ('10006', 'Sahil', 'HR Assistant', 'HR', 'Pune');
+INSERT INTO Employee VALUES ('10007', 'Varad', 'Operations Lead', 'Operations', 'Bangalore');
+INSERT INTO Employee VALUES ('10008', 'Atharva', 'Marketing Exec', 'Marketing', 'Chennai');
+INSERT INTO Employee VALUES ('10009', 'Yashraj', 'Support Analyst', 'IT Support', 'Pune');
+INSERT INTO Employee VALUES ('10010', 'Ishant', 'DevOps Engineer', 'Development', 'Mumbai');
+
+-- Create Department table
+CREATE TABLE Department (
+    dept_name VARCHAR2(20) PRIMARY KEY,
+    manager_name VARCHAR2(20)
+);
+
+-- Insert records into Department table
+INSERT INTO Department VALUES ('Marketing', 'Soham');
+INSERT INTO Department VALUES ('Operations', 'Karunya');
+INSERT INTO Department VALUES ('IT Support', 'Guruprasad');
+INSERT INTO Department VALUES ('Development', 'Parimal');
+INSERT INTO Department VALUES ('CustomerSuccess', 'Hemant');
+INSERT INTO Department VALUES ('HR', 'Rohit');
+
+-- Create Workers table
+CREATE TABLE Workers (
+    emp_name VARCHAR2(20),
+    dept_name VARCHAR2(20),
+    emp_salary NUMBER(7) NOT NULL,
+    PRIMARY KEY(emp_name),
+    FOREIGN KEY(dept_name) REFERENCES Department(dept_name)
+);
+
+-- Insert records into Workers table
+INSERT INTO Workers VALUES ('Soham', 'Marketing', 45000);
+INSERT INTO Workers VALUES ('Vivek', 'Operations', 38000);
+INSERT INTO Workers VALUES ('Aryan', 'IT Support', 55000);
+INSERT INTO Workers VALUES ('Shivam', 'Development', 62000);
+INSERT INTO Workers VALUES ('Siddarth', 'CustomerSuccess', 30000);
+INSERT INTO Workers VALUES ('Sahil', 'HR', 32000);
+INSERT INTO Workers VALUES ('Yashraj', 'IT Support', 42000);
+INSERT INTO Workers VALUES ('Ishant', 'Development', 60000);
+
+-- Create a view for employees from Pune
+CREATE VIEW view_emp AS
+SELECT emp_name, dept_name
+FROM Employee
+WHERE emp_city = 'Pune';
+
+-- Part B: DML Statements
+-- 1. Select all employees
+SELECT * FROM Employee;
+
+-- 2. Select all departments
+SELECT * FROM Department;
+
+-- 3. Select all workers
+SELECT * FROM Workers;
+
+-- 4. Count the total number of employees
+SELECT COUNT(*) AS total_employees 
+FROM Employee;
+
+-- 5. Find employees whose names contain 'a' and 'r'
+SELECT emp_id , emp_name 
+FROM Employee 
+WHERE emp_name LIKE '%a___'
+
+-- 6. Find a employee by employee ID 
+SELECT * FROM Employee WHERE ROWNUM <= 5; 
+
+-- 7. Select distinct department names from Employee
+SELECT DISTINCT dept_name
+FROM Employee;
+
+-- 8. Employee names starting from 'S', grouped by salary
+SELECT emp_name, dept_name, emp_salary
+FROM Workers
+WHERE emp_name LIKE 'S%'
+GROUP BY emp_name, dept_name, emp_salary;
+
+-- 9. Employees starting with 'S' and total salary greater than 30,000
+SELECT emp_name, dept_name, SUM(emp_salary) AS total_salary
+FROM Workers
+WHERE emp_name LIKE 'S%'
+GROUP BY emp_name, dept_name
+HAVING SUM(emp_salary) > 30000;
+
+-- 10. Update an employee's description
+UPDATE Employee
+SET emp_desc = 'Senior Accountant'
+WHERE emp_name = 'Siddarth'; 
+
+-- 11. Select employees whose name starts with 'S'
+SELECT emp_name, dept_name
+FROM Employee
+WHERE emp_name LIKE 'S%';
+
+-- 12. Delete an employee
+DELETE FROM Employee
+WHERE emp_name = 'Siddarth'; 
+
+-- 13. Select employees in a specific department
+SELECT emp_id, emp_name 
+FROM Employee
+WHERE dept_name = 'HR';
+
+-- 14. Find workers with salary greater than 30,000
+SELECT emp_name 
+FROM Workers
+WHERE emp_salary > 30000;
+
+-- 15. Select employees from Pune
+SELECT emp_name, dept_name 
+FROM Employee
+WHERE emp_city = 'Pune';
+
+-- 16. Retrieve the view of employees from Pune
+SELECT * FROM view_emp;
+
+-- 17. Count the total number of employees
+SELECT COUNT(*) AS total_employees 
+FROM Employee;
+
+-- 18. Find employees who work in the "IT Support" department
+SELECT emp_name 
+FROM Employee 
+WHERE dept_name = 'IT Support';
+
+-- 19. Retrieve the maximum salary of workers
+SELECT MAX(emp_salary) AS highest_salary 
+FROM Workers;
+
+-- 20. Retrieve the average salary of workers in the "Development" department
+SELECT AVG(emp_salary) AS avg_salary 
+FROM Workers 
+WHERE dept_name = 'Development';
+
+-- 21. Find all employees whose name starts with 'S'
+SELECT emp_name 
+FROM Employee 
+WHERE emp_name LIKE 'A%' AND emp_name LIKE 'V%';
+
+-- 22. Select employees and display their city, sorted by the department name
+SELECT emp_name, emp_city, dept_name 
+FROM Employee 
+ORDER BY dept_name;
+
+-- 23. Increase the salary of workers in the "Operations" department by 10%
+UPDATE Workers 
+SET emp_salary = emp_salary * 1.1 
+WHERE dept_name = 'Operations';
+
+-- 24. Retrieve the list of employees not located in 'Mumbai'
+SELECT emp_name, emp_city 
+FROM Employee 
+WHERE emp_city <> 'Mumbai';
+
+-- 25. Find employees whose city is either 'Chennai' or 'Bangalore'
+SELECT emp_name, emp_city 
+FROM Employee 
+WHERE emp_city IN ('Chennai', 'Bangalore');
+
+-- 26. List all departments that have more than 1 employee
+SELECT dept_name, COUNT(emp_name) AS total_employees 
+FROM Employee 
+GROUP BY dept_name 
+HAVING COUNT(emp_name) > 1;
+
+-- 27. Select employees from Bangalore
+SELECT emp_name, dept_name 
+FROM Employee
+WHERE emp_city = 'Bangalore';
+
+-- 28. Retrieve all employees who work in the 'Marketing' department
+SELECT emp_name 
+FROM Employee 
+WHERE dept_name = 'Marketing';
+
+-- 29. Retrieve the view of employees from Pune
+SELECT * FROM view_emp;
+
+-- 30. Drop the Department table
+DROP TABLE Department CASCADE CONSTRAINTS;
